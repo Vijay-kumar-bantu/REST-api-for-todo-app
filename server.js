@@ -18,12 +18,16 @@ app.use(cors());
 
 const get_details = async () => {
   const users = await User.find();
-
+  // console.log(users[0].date.toLocaleDateString());
   return users;
 };
 
 const create_detail = async (name) => {
-  const users = await User.create({ task_name: name });
+  let date = new Date();
+  const users = await User.create({
+    task_name: name,
+    date: date,
+  });
   return users;
 };
 
@@ -33,6 +37,17 @@ const delete_details = async (id) => {
 
   return users;
 };
+
+const patch_details = async (id, new_task) => {
+  const users = await User.updateOne(
+    { _id: id },
+    { $set: { task_name: new_task } }
+  );
+
+  return users;
+};
+
+//routes
 
 app.get("/", (req, res) => {
   get_details().then((data) => {
@@ -55,6 +70,17 @@ app.post("/", (req, res) => {
 app.delete("/", (req, res) => {
   try {
     const process = delete_details(req.body.id);
+    process.then((data) => {
+      res.send(data);
+    });
+  } catch (e) {
+    res.send(e);
+  }
+});
+
+app.patch("/", (req, res) => {
+  try {
+    const process = patch_details(req.body.id, req.body.task);
     process.then((data) => {
       res.send(data);
     });
